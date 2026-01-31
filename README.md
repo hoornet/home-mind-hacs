@@ -40,7 +40,7 @@ A Home Assistant conversation agent powered by Claude AI with persistent memory.
 This integration requires a running [Home Mind API server](https://github.com/hoornet/home-mind). The API server handles:
 
 - Claude AI integration
-- Memory storage (Shodh Memory or SQLite)
+- Memory storage (Shodh Memory)
 - Home Assistant tool execution
 
 ## Usage
@@ -62,7 +62,7 @@ Once configured, Home Mind appears as a conversation agent in Home Assistant Ass
 ## Links
 
 - [Main Repository](https://github.com/hoornet/home-mind) - API server and full documentation
-- [Issues](https://github.com/hoornet/home-mind-hacs/issues) - Report bugs or request features
+- [Issues](https://github.com/hoornet/home-mind/issues) - Report bugs or request features
 
 ## License
 
