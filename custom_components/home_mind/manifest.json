@@ -7,7 +7,6 @@
   "documentation": "https://github.com/hoornet/home-mind",
   "integration_type": "service",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/hoornet/home-mind/issues",
   "requirements": ["aiohttp>=3.8.0"],
-  "version": "0.7.0"
+  "version": "0.9.0"
 }
