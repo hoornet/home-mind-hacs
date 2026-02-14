@@ -12,6 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType
 
 from .const import (
     DOMAIN,
@@ -108,7 +109,7 @@ class OptionsFlow(config_entries.OptionsFlow):
                     vol.Optional(
                         CONF_CUSTOM_PROMPT,
                         description={"suggested_value": self.config_entry.options.get(CONF_CUSTOM_PROMPT, "")},
-                    ): str,
+                    ): TextSelector(TextSelectorConfig(multiline=True, type=TextSelectorType.TEXT)),
                 }
             ),
         )
