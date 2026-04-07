@@ -1,4 +1,5 @@
 """Config flow for Home Mind integration."""
+
 from __future__ import annotations
 
 import logging
@@ -17,11 +18,13 @@ from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, Tex
 from .const import (
     DOMAIN,
     CONF_API_URL,
+    CONF_API_TOKEN,
     CONF_USER_ID,
     CONF_CUSTOM_PROMPT,
     DEFAULT_API_URL,
     DEFAULT_USER_ID,
     API_HEALTH_ENDPOINT,
+    CLOUD_SIGNUP_URL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -29,6 +32,7 @@ _LOGGER = logging.getLogger(__name__)
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_API_URL, default=DEFAULT_API_URL): str,
+        vol.Optional(CONF_API_TOKEN): str,
         vol.Optional(CONF_USER_ID, default=DEFAULT_USER_ID): str,
     }
 )
@@ -38,12 +42,20 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     """Validate the user input allows us to connect."""
     session = async_get_clientsession(hass)
     api_url = data[CONF_API_URL].rstrip("/")
+    api_token = data.get(CONF_API_TOKEN, "").strip() or None
+
+    headers = {}
+    if api_token:
+        headers["Authorization"] = f"Bearer {api_token}"
 
     try:
         async with session.get(
             f"{api_url}{API_HEALTH_ENDPOINT}",
+            headers=headers,
             timeout=aiohttp.ClientTimeout(total=10),
         ) as response:
+            if response.status == 401:
+                raise InvalidAuth("Invalid API token")
             if response.status != 200:
                 raise CannotConnect(f"API returned status {response.status}")
             result = await response.json()
@@ -77,6 +89,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             try:
                 info = await validate_input(self.hass, user_input)
+            except InvalidAuth:
+                errors["base"] = "invalid_auth"
             except CannotConnect:
                 errors["base"] = "cannot_connect"
             except Exception:  # pylint: disable=broad-except
@@ -88,6 +102,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=STEP_USER_DATA_SCHEMA,
+            description_placeholders={"cloud_url": CLOUD_SIGNUP_URL},
             errors=errors,
         )
 
@@ -108,7 +123,11 @@ class OptionsFlow(config_entries.OptionsFlow):
                 {
                     vol.Optional(
                         CONF_CUSTOM_PROMPT,
-                        description={"suggested_value": self.config_entry.options.get(CONF_CUSTOM_PROMPT, "")},
+                        description={
+                            "suggested_value": self.config_entry.options.get(
+                                CONF_CUSTOM_PROMPT, ""
+                            )
+                        },
                     ): TextSelector(TextSelectorConfig(multiline=True, type=TextSelectorType.TEXT)),
                 }
             ),
@@ -117,3 +136,7 @@ class OptionsFlow(config_entries.OptionsFlow):
 
 class CannotConnect(HomeAssistantError):
     """Error to indicate we cannot connect."""
+
+
+class InvalidAuth(HomeAssistantError):
+    """Error to indicate invalid authentication."""

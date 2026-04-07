@@ -3,15 +3,21 @@
     "step": {
       "user": {
         "title": "Configure Home Mind",
-        "description": "Enter the URL of your Home Mind API server.",
+        "description": "Enter the URL of your Home Mind API server. Don't have a server? Get a hosted one at [{cloud_url}]({cloud_url}).",
         "data": {
           "api_url": "API URL",
+          "api_token": "API Token (optional)",
           "user_id": "Default User ID (optional)"
+        },
+        "data_description": {
+          "api_token": "Required for Home Mind Cloud. Leave empty for self-hosted setups without authentication.",
+          "user_id": "Used to namespace memories per user. Leave as 'default' unless you have multiple users."
         }
       }
     },
     "error": {
       "cannot_connect": "Failed to connect to the Home Mind API. Make sure it's running and accessible.",
+      "invalid_auth": "Invalid API token. Check your token on the Home Mind Cloud dashboard.",
       "unknown": "Unexpected error occurred."
     },
     "abort": {

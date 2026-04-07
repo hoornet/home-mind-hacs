@@ -1,4 +1,5 @@
 """Conversation agent for Home Mind."""
+
 from __future__ import annotations
 
 import logging
@@ -23,6 +24,7 @@ from homeassistant.util import ulid
 from .const import (
     DOMAIN,
     CONF_API_URL,
+    CONF_API_TOKEN,
     CONF_USER_ID,
     CONF_CUSTOM_PROMPT,
     DEFAULT_USER_ID,
@@ -55,6 +57,7 @@ class HomeMindConversationAgent(ConversationEntity):
         self.hass = hass
         self.entry = entry
         self._api_url = entry.data[CONF_API_URL].rstrip("/")
+        self._api_token = entry.data.get(CONF_API_TOKEN, "").strip() or None
         self._default_user_id = entry.data.get(CONF_USER_ID, DEFAULT_USER_ID)
         self._session = async_get_clientsession(hass)
 
@@ -72,9 +75,7 @@ class HomeMindConversationAgent(ConversationEntity):
         """Return supported languages."""
         return MATCH_ALL
 
-    async def async_process(
-        self, user_input: ConversationInput
-    ) -> ConversationResult:
+    async def async_process(self, user_input: ConversationInput) -> ConversationResult:
         """Process a conversation input and return a response."""
         _LOGGER.debug("Processing conversation input: %s", user_input.text)
 
@@ -96,7 +97,9 @@ class HomeMindConversationAgent(ConversationEntity):
                 conversation_id=conversation_id,
                 is_voice=is_voice,
             )
-            _LOGGER.debug("Got response: %s", response_text[:100] if response_text else "None")
+            _LOGGER.debug(
+                "Got response: %s", response_text[:100] if response_text else "None"
+            )
 
             intent_response = intent.IntentResponse(language=user_input.language)
             intent_response.async_set_speech(response_text)
@@ -141,11 +144,16 @@ class HomeMindConversationAgent(ConversationEntity):
         if custom_prompt:
             payload["customPrompt"] = custom_prompt
 
+        headers = {}
+        if self._api_token:
+            headers["Authorization"] = f"Bearer {self._api_token}"
+
         _LOGGER.debug("Calling Home Mind API: %s with payload: %s", url, payload)
 
         async with self._session.post(
             url,
             json=payload,
+            headers=headers,
             timeout=aiohttp.ClientTimeout(total=DEFAULT_TIMEOUT),
         ) as response:
             if response.status != 200:
