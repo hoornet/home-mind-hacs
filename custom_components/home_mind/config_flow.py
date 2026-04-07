@@ -49,18 +49,31 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
         headers["Authorization"] = f"Bearer {api_token}"
 
     try:
+        # First check that the server is reachable via unauthenticated health endpoint
         async with session.get(
             f"{api_url}{API_HEALTH_ENDPOINT}",
-            headers=headers,
             timeout=aiohttp.ClientTimeout(total=10),
         ) as response:
-            if response.status == 401:
-                raise InvalidAuth("Invalid API token")
             if response.status != 200:
                 raise CannotConnect(f"API returned status {response.status}")
             result = await response.json()
             if result.get("status") != "ok":
                 raise CannotConnect("API health check failed")
+
+        # If a token was provided, verify it against a protected endpoint
+        if api_token:
+            user_id = data.get(CONF_USER_ID, DEFAULT_USER_ID)
+            async with session.get(
+                f"{api_url}/api/memory/{user_id}",
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=10),
+            ) as response:
+                if response.status in (401, 403):
+                    raise InvalidAuth("Invalid API token")
+                if response.status != 200:
+                    raise CannotConnect(
+                        f"Token verification returned status {response.status}"
+                    )
     except aiohttp.ClientError as err:
         _LOGGER.error("Error connecting to Home Mind API: %s", err)
         raise CannotConnect from err
