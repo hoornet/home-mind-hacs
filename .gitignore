@@ -16,6 +16,10 @@ __pycache__/
 # Claude Code local settings
 .claude/
 
+# Environment
+.env
+.env.*
+
 # OS
 .DS_Store
 Thumbs.db
