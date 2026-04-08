@@ -3,6 +3,7 @@
   "name": "Home Mind",
   "codeowners": ["@hoornet"],
   "config_flow": true,
+  "after_dependencies": ["hassio"],
   "dependencies": ["conversation"],
   "documentation": "https://github.com/hoornet/home-mind",
   "integration_type": "service",

@@ -13,6 +13,10 @@
           "api_token": "Required for Home Mind Cloud. Leave empty for self-hosted setups without authentication.",
           "user_id": "Used to namespace memories per user. Leave as 'default' unless you have multiple users."
         }
+      },
+      "hassio_confirm": {
+        "title": "HomeMind PRO Detected",
+        "description": "The HomeMind PRO add-on has been detected. Would you like to set up Home Mind?"
       }
     },
     "error": {
@@ -21,7 +25,8 @@
       "unknown": "Unexpected error occurred."
     },
     "abort": {
-      "already_configured": "Home Mind is already configured."
+      "already_configured": "Home Mind is already configured.",
+      "cannot_connect": "Could not connect to the HomeMind PRO add-on. Make sure it's running."
     }
   },
   "options": {

@@ -86,12 +86,58 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    def __init__(self) -> None:
+        """Initialize the config flow."""
+        self._hassio_discovery: dict[str, Any] | None = None
+
     @staticmethod
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> OptionsFlow:
         """Get the options flow for this handler."""
         return OptionsFlow()
+
+    async def async_step_hassio(
+        self, discovery_info: dict[str, Any]
+    ) -> FlowResult:
+        """Handle discovery from HomeMind PRO add-on."""
+        self._hassio_discovery = discovery_info
+        host = discovery_info.get("host", "")
+        port = discovery_info.get("port", 3100)
+        api_url = f"http://{host}:{port}"
+
+        # Prevent duplicate entries for the same add-on
+        await self.async_set_unique_id(f"homemind_addon_{host}")
+        self._abort_if_unique_id_configured(updates={CONF_API_URL: api_url})
+
+        # Validate the discovered server is reachable
+        try:
+            await validate_input(self.hass, {
+                CONF_API_URL: api_url,
+                CONF_USER_ID: DEFAULT_USER_ID,
+            })
+        except (CannotConnect, InvalidAuth):
+            return self.async_abort(reason="cannot_connect")
+
+        return await self.async_step_hassio_confirm()
+
+    async def async_step_hassio_confirm(
+        self, user_input: dict[str, Any] | None = None
+    ) -> FlowResult:
+        """Confirm HomeMind PRO add-on discovery."""
+        if user_input is not None:
+            assert self._hassio_discovery is not None
+            host = self._hassio_discovery["host"]
+            port = self._hassio_discovery.get("port", 3100)
+            return self.async_create_entry(
+                title="Home Mind (Add-on)",
+                data={
+                    CONF_API_URL: f"http://{host}:{port}",
+                    CONF_USER_ID: DEFAULT_USER_ID,
+                },
+            )
+
+        return self.async_show_form(step_id="hassio_confirm")
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
