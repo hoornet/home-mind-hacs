@@ -1,4 +1,10 @@
-# Home Mind
+# Home Mind — LEGACY (Archived)
+
+> **This repository is no longer maintained.**
+> The integration is now bundled inside the [HomeMind PRO add-on](https://github.com/hoornet/homemind-pro-addon) and installed automatically — no HACS required.
+> Do not install this component manually; it will conflict with the add-on.
+
+---
 
 A Home Assistant conversation agent powered by Claude AI with persistent memory.
 

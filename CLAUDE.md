@@ -1,5 +1,11 @@
 # CLAUDE.md
 
+> **LEGACY REPO — DO NOT EDIT.**
+> The integration now lives in `homemind-pro-addon/server/src/ha-integration/` (source) and `homemind-pro-addon/homemind-pro/rootfs/opt/home_mind_integration/` (deployed copy).
+> Any changes to the HA integration must go there, not here.
+
+---
+
 This file provides guidance to Claude Code when working with code in this repository.
 
 ## What This Is
