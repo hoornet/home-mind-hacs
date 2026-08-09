@@ -77,9 +77,17 @@ No build step — Python source is the distribution. Test by copying to HA's `cu
 
 HACS installation uses the GitHub repo URL: `https://github.com/hoornet/home-mind-hacs`
 
-## Versioning
+## Versioning — here, an untagged change reaches nobody
 
-Version is in `manifest.json`. Releases are tagged on GitHub (e.g., `v0.10.0`). HACS picks up new versions from GitHub releases.
+Version lives in `manifest.json`. **HACS installs from GitHub *releases*, not from the default branch**, so merging to `main` ships nothing: a user who clicks Update in HACS still receives the last tagged release. This is the strictest of the three repos — in `nives` a missing tag only makes the repo look neglected, and in `home-mind` users can still clone `main`. Here the release *is* the distribution channel.
+
+So a change is not done until:
+
+1. `manifest.json` version bumped (HACS reads it, and HA logs it).
+2. `git tag -a v<version>` on that commit, pushed.
+3. `gh release create v<version>` — HACS surfaces the release notes to users in-app, so write them for someone deciding whether to click Update.
+
+Check with `gh release list --limit 1` against `manifest.json` whenever you touch this repo; if they disagree, whatever is in `main` is not live for anyone.
 
 ## Related Projects
 
