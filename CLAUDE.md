@@ -1,8 +1,17 @@
 # CLAUDE.md
 
-> **LEGACY REPO — DO NOT EDIT.**
-> The integration now lives in `homemind-pro-addon/server/src/ha-integration/` (source) and `homemind-pro-addon/homemind-pro/rootfs/opt/home_mind_integration/` (deployed copy).
-> Any changes to the HA integration must go there, not here.
+> **This is the maintained HA integration for the OSS `home-mind` server.**
+> It is *not* legacy — it was mislabelled as such for a while (2026-04 → 2026-08)
+> because the Nives add-on stopped needing it. Nives ships its **own** integration
+> from `nives/nives/rootfs/opt/nives/`; that copy and this one are independent and
+> must not be synced. Edit this repo for anything that reaches OSS home-mind users.
+>
+> Priority: **Nives is where new development happens**; home-mind and this
+> integration stay maintained, and changes that belong in both are ported across
+> deliberately — never copied on autopilot.
+>
+> Note: the copy vendored at `home-mind/src/ha-integration/` is an old snapshot
+> (v0.9.3, no API-token support). This repo (v0.10.0+) is the current one.
 
 ---
 
@@ -74,6 +83,7 @@ Version is in `manifest.json`. Releases are tagged on GitHub (e.g., `v0.10.0`). 
 
 ## Related Projects
 
-- `/home/hoornet/projects/home-mind` — The server this component talks to
-- `/home/hoornet/projects/home-mind-cloud` — Cloud hosting (closed, irrelevant to this component)
-- `/home/hoornet/projects/home-mind-proxy` — LLM proxy (closed, transparent to this component)
+- `homemind-projects/home-mind` — the server this component talks to
+- `homemind-projects/nives` — the add-on; ships its own integration, independent of this one
+- `homemind-projects/nives-cloud` — subscription/billing (closed, irrelevant here)
+- `homemind-projects/Legacy/home-mind-proxy` — retired LLM proxy (no live deployment)
