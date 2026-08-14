@@ -25,7 +25,7 @@ Distributed via [HACS](https://hacs.xyz/) (Home Assistant Community Store).
 
 ## License
 
-AGPL-3.0 — this is an open-source project. Do not introduce any code, imports, or dependencies from the closed-source repos (`home-mind-cloud`, `home-mind-proxy`, `home-mind-app`).
+AGPL-3.0 — this is an open-source project. Do not introduce any code, imports, or dependencies from the closed-source repos. They connect over HTTP or not at all.
 
 ## Architecture
 
@@ -91,7 +91,5 @@ Check with `gh release list --limit 1` against `manifest.json` whenever you touc
 
 ## Related Projects
 
-- `homemind-projects/home-mind` — the server this component talks to
-- `homemind-projects/nives` — the add-on; ships its own integration, independent of this one
-- `homemind-projects/nives-cloud` — subscription/billing (closed, irrelevant here)
-- `homemind-projects/Legacy/home-mind-proxy` — retired LLM proxy (no live deployment)
+- [`home-mind`](https://github.com/hoornet/home-mind) — the server this component talks to
+- [`nives`](https://github.com/hoornet/nives) — the add-on; ships its own integration, independent of this one
