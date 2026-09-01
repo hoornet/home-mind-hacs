@@ -15,8 +15,8 @@
         }
       },
       "hassio_confirm": {
-        "title": "HomeMind PRO Detected",
-        "description": "The HomeMind PRO add-on has been detected. Would you like to set up Home Mind?"
+        "title": "Home Mind add-on found",
+        "description": "The {addon} add-on was found on this system. Do you want to set up Home Mind with it?"
       }
     },
     "error": {
@@ -26,7 +26,7 @@
     },
     "abort": {
       "already_configured": "Home Mind is already configured.",
-      "cannot_connect": "Could not connect to the HomeMind PRO add-on. Make sure it's running."
+      "cannot_connect": "Could not connect to the Home Mind add-on. Make sure it is running."
     }
   },
   "options": {

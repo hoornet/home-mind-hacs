@@ -14,6 +14,7 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType
+from homeassistant.helpers.service_info.hassio import HassioServiceInfo
 
 from .const import (
     DOMAIN,
@@ -98,12 +99,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return OptionsFlow()
 
     async def async_step_hassio(
-        self, discovery_info: dict[str, Any]
+        self, discovery_info: HassioServiceInfo
     ) -> FlowResult:
-        """Handle discovery from HomeMind PRO add-on."""
-        self._hassio_discovery = discovery_info
-        host = discovery_info.get("host", "")
-        port = discovery_info.get("port", 3100)
+        """Handle discovery from a Home Mind add-on."""
+        # The add-on's payload lives in .config; HassioServiceInfo itself is a
+        # slotted dataclass, so it cannot be read like a mapping.
+        self._hassio_discovery = discovery_info.config
+        host = discovery_info.config.get("host", "")
+        port = discovery_info.config.get("port", 3100)
         api_url = f"http://{host}:{port}"
 
         # Prevent duplicate entries for the same add-on
@@ -124,7 +127,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_hassio_confirm(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Confirm HomeMind PRO add-on discovery."""
+        """Confirm the discovered add-on."""
         if user_input is not None:
             assert self._hassio_discovery is not None
             host = self._hassio_discovery["host"]
@@ -137,7 +140,15 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 },
             )
 
-        return self.async_show_form(step_id="hassio_confirm")
+        # Supervisor injects the add-on's name into the payload, so the prompt
+        # can name the add-on that was actually found.
+        assert self._hassio_discovery is not None
+        return self.async_show_form(
+            step_id="hassio_confirm",
+            description_placeholders={
+                "addon": self._hassio_discovery.get("addon", "Home Mind")
+            },
+        )
 
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
