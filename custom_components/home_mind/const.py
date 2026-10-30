@@ -13,4 +13,4 @@ DEFAULT_TIMEOUT = 120  # Claude with tool use can take 60+ seconds
 API_CHAT_ENDPOINT = "/api/chat"
 API_HEALTH_ENDPOINT = "/api/health"
 
-CLOUD_SIGNUP_URL = "https://homemind.veganostr.com"
+NIVES_URL = "https://nives.house"

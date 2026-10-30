@@ -25,7 +25,7 @@ from .const import (
     DEFAULT_API_URL,
     DEFAULT_USER_ID,
     API_HEALTH_ENDPOINT,
-    CLOUD_SIGNUP_URL,
+    NIVES_URL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -172,7 +172,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user",
             data_schema=STEP_USER_DATA_SCHEMA,
-            description_placeholders={"cloud_url": CLOUD_SIGNUP_URL},
+            description_placeholders={"nives_url": NIVES_URL},
             errors=errors,
         )
 
