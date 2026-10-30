@@ -1,10 +1,9 @@
 # CLAUDE.md
 
 > **This is the maintained HA integration for the OSS `home-mind` server.**
-> It is *not* legacy — it was mislabelled as such for a while (2026-04 → 2026-08)
-> because the Nives add-on stopped needing it. Nives ships its **own** integration
-> from `nives/nives/rootfs/opt/nives/`; that copy and this one are independent and
-> must not be synced. Edit this repo for anything that reaches OSS home-mind users.
+> Nives ships its **own** integration from `nives/nives/rootfs/opt/nives/`; that
+> copy and this one are independent and must not be synced. Edit this repo for
+> anything that reaches OSS home-mind users.
 >
 > Priority: **Nives is where new development happens**; home-mind and this
 > integration stay maintained, and changes that belong in both are ported across
@@ -64,7 +63,7 @@ After setup, users can configure `custom_prompt` via the integration options (Op
 ## Conversation Agent
 
 `HomeMindConversationAgent` in `conversation.py`:
-- Detects voice vs text via `user_input.agent_id is not None`
+- Detects voice vs text via `satellite_id` (`agent_id` is set on every routed request, typed or spoken)
 - Sends `isVoice=true` to server for voice interactions (server uses shorter prompt)
 - Uses `intent.IntentResponse` (not `conversation.IntentResponse`)
 - Conversation IDs: `ulid.ulid_now()` (not UUID)
