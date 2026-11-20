@@ -12,5 +12,8 @@ DEFAULT_TIMEOUT = 120  # Claude with tool use can take 60+ seconds
 
 API_CHAT_ENDPOINT = "/api/chat"
 API_HEALTH_ENDPOINT = "/api/health"
+# Set to "invalid" by a server whose generated token is not in use yet, when a
+# request carried some other token: it still answers, so the setup has to look.
+TOKEN_STATUS_HEADER = "X-Home-Mind-Token"
 
 NIVES_URL = "https://github.com/hoornet/nives"

@@ -19,7 +19,7 @@ A running [Home Mind server](https://github.com/hoornet/home-mind) — it handle
 1. Install and run the Home Mind server
 2. Install this integration via HACS
 3. Add the integration in Home Assistant settings
-4. Enter your server URL (and API token, if you've set one)
+4. Enter your server URL and API token (`API_TOKEN`, or `API_TOKEN_AUTO` from the server's `.env`)
 5. Set it as your conversation agent under Voice assistants
 
 ### Not running the add-on, are you?

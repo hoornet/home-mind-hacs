@@ -52,9 +52,11 @@ custom_components/home_mind/
 Two-step validation in `validate_input()`:
 
 1. **Reachability**: `GET /api/health` (unauthenticated) — checks server is up
-2. **Token validation** (if token provided): `GET /api/memory/{userId}` with `Authorization: Bearer <token>` — checks for 401/403
+2. **Token validation** (`check_auth`, on by default): `GET /api/memory/{userId}` with the token if one was given, without it otherwise — 401/403 is `invalid_auth`. Asking without a token too means a server that requires one refuses an entry that has none. A server whose generated token is not in use yet lets any token through but marks a wrong one with `X-Home-Mind-Token: invalid` (`TOKEN_STATUS_HEADER`), which is also `invalid_auth`, so a typo is caught before the server enforces anything.
 
 This two-step approach is necessary because `/api/health` bypasses auth middleware. Without step 2, any random string would be accepted as a valid token.
+
+**Discovery passes `check_auth=False` and never sends the token.** Since server 0.21.0 a generated token (`API_TOKEN_AUTO`) is required from the first request that carries it, and an enforced server would answer 401 to a check without one. The add-on's discovery payload carries `api_token`; `async_step_hassio` merges it into an existing entry (`updates`, `reload_on_update=False` because the update listener reloads), aborts older discovery cards for the same add-on, and `async_setup_entry` sends the token once in the background (`_async_use_api_token`) so the server starts requiring it right after Home Assistant restarts.
 
 ### Options Flow
 
