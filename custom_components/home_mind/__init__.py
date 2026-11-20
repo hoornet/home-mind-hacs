@@ -87,6 +87,11 @@ async def _async_use_api_token(hass: HomeAssistant, entry: ConfigEntry) -> None:
                 return
         except (aiohttp.ClientError, TimeoutError) as err:
             _LOGGER.debug("Home Mind not reachable yet (%s), attempt %d", err, attempt)
+    _LOGGER.warning(
+        "Could not reach Home Mind at %s to start using the API token; it will be "
+        "used with the next conversation",
+        api_url,
+    )
 
 
 async def _async_update_listener(hass: HomeAssistant, entry: ConfigEntry) -> None:
