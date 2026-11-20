@@ -52,7 +52,7 @@ custom_components/home_mind/
 Two-step validation in `validate_input()`:
 
 1. **Reachability**: `GET /api/health` (unauthenticated) — checks server is up
-2. **Token validation** (`check_auth`, on by default): `GET /api/memory/{userId}` with the token if one was given, without it otherwise — 401/403 is `invalid_auth`. Asking without a token too means a server that requires one refuses an entry that has none.
+2. **Token validation** (`check_auth`, on by default): `GET /api/memory/{userId}` with the token if one was given, without it otherwise — 401/403 is `invalid_auth`. Asking without a token too means a server that requires one refuses an entry that has none. A server whose generated token is not in use yet lets any token through but marks a wrong one with `X-Home-Mind-Token: invalid` (`TOKEN_STATUS_HEADER`), which is also `invalid_auth`, so a typo is caught before the server enforces anything.
 
 This two-step approach is necessary because `/api/health` bypasses auth middleware. Without step 2, any random string would be accepted as a valid token.
 

@@ -27,6 +27,7 @@ from .const import (
     DEFAULT_USER_ID,
     API_HEALTH_ENDPOINT,
     NIVES_URL,
+    TOKEN_STATUS_HEADER,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -79,6 +80,8 @@ async def validate_input(
             ) as response:
                 if response.status in (401, 403):
                     raise InvalidAuth("Invalid or missing API token")
+                if response.headers.get(TOKEN_STATUS_HEADER) == "invalid":
+                    raise InvalidAuth("Not the server's API token")
                 if response.status != 200:
                     raise CannotConnect(
                         f"Token verification returned status {response.status}"

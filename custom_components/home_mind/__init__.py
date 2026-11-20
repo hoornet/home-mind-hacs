@@ -13,7 +13,14 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .const import CONF_API_TOKEN, CONF_API_URL, CONF_USER_ID, DEFAULT_USER_ID, DOMAIN
+from .const import (
+    CONF_API_TOKEN,
+    CONF_API_URL,
+    CONF_USER_ID,
+    DEFAULT_USER_ID,
+    DOMAIN,
+    TOKEN_STATUS_HEADER,
+)
 
 if TYPE_CHECKING:
     from homeassistant.helpers.typing import ConfigType
@@ -68,10 +75,13 @@ async def _async_use_api_token(hass: HomeAssistant, entry: ConfigEntry) -> None:
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
-                if response.status in (401, 403):
+                if (
+                    response.status in (401, 403)
+                    or response.headers.get(TOKEN_STATUS_HEADER) == "invalid"
+                ):
                     _LOGGER.warning(
-                        "Home Mind refused the API token (HTTP %s). Remove the "
-                        "integration and add it again with the server's token",
+                        "Home Mind does not know this entry's API token (HTTP %s). "
+                        "Remove the integration and add it again with the server's token",
                         response.status,
                     )
                 return

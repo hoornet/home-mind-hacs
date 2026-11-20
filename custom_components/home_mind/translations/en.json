@@ -21,7 +21,7 @@
     },
     "error": {
       "cannot_connect": "Failed to connect to the Home Mind API. Make sure it's running and accessible.",
-      "invalid_auth": "The server refused the API token, or needs one. Enter API_TOKEN, or API_TOKEN_AUTO from the server's .env file if you did not set API_TOKEN.",
+      "invalid_auth": "That is not the server's API token, or the server needs one. Enter API_TOKEN, or API_TOKEN_AUTO from the server's .env file if you did not set API_TOKEN.",
       "unknown": "Unexpected error occurred."
     },
     "abort": {
