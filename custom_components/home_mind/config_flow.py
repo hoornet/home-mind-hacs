@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from typing import Any
+from urllib.parse import quote
 
 import aiohttp
 import voluptuous as vol
@@ -39,8 +40,16 @@ STEP_USER_DATA_SCHEMA = vol.Schema(
 )
 
 
-async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    """Validate the user input allows us to connect."""
+async def validate_input(
+    hass: HomeAssistant, data: dict[str, Any], *, check_auth: bool = True
+) -> dict[str, Any]:
+    """Validate the user input allows us to connect.
+
+    With `check_auth`, a protected endpoint is also asked, with the token if
+    one was given and without one otherwise, so a server that requires a
+    token refuses an entry that has none instead of failing every
+    conversation later.
+    """
     session = async_get_clientsession(hass)
     api_url = data[CONF_API_URL].rstrip("/")
     api_token = data.get(CONF_API_TOKEN, "").strip() or None
@@ -61,16 +70,15 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
             if result.get("status") != "ok":
                 raise CannotConnect("API health check failed")
 
-        # If a token was provided, verify it against a protected endpoint
-        if api_token:
-            user_id = data.get(CONF_USER_ID, DEFAULT_USER_ID)
+        if check_auth:
+            user_id = data.get(CONF_USER_ID) or DEFAULT_USER_ID
             async with session.get(
-                f"{api_url}/api/memory/{user_id}",
+                f"{api_url}/api/memory/{quote(user_id, safe='')}",
                 headers=headers,
                 timeout=aiohttp.ClientTimeout(total=10),
             ) as response:
                 if response.status in (401, 403):
-                    raise InvalidAuth("Invalid API token")
+                    raise InvalidAuth("Invalid or missing API token")
                 if response.status != 200:
                     raise CannotConnect(
                         f"Token verification returned status {response.status}"
@@ -117,18 +125,27 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         updates: dict[str, Any] = {CONF_API_URL: api_url}
         if api_token:
             updates[CONF_API_TOKEN] = api_token
-        await self.async_set_unique_id(f"homemind_addon_{host}")
-        self._abort_if_unique_id_configured(updates=updates)
+        unique_id = f"homemind_addon_{host}"
+        await self.async_set_unique_id(unique_id, raise_on_progress=False)
+        # A card from an earlier announcement may still be waiting, with an
+        # older token or none; this announcement replaces it.
+        for flow in self._async_in_progress(
+            include_uninitialized=True, match_context={"unique_id": unique_id}
+        ):
+            self.hass.config_entries.flow.async_abort(flow["flow_id"])
+        # The entry's update listener reloads it, so don't reload here as well.
+        self._abort_if_unique_id_configured(updates=updates, reload_on_update=False)
 
         # Check the discovered server is reachable, deliberately WITHOUT the
         # token: the server starts requiring a generated token from the first
         # request that carries it, and an entry the user set up by hand without
         # one must not be locked out just because the add-on was discovered.
         try:
-            await validate_input(self.hass, {
-                CONF_API_URL: api_url,
-                CONF_USER_ID: DEFAULT_USER_ID,
-            })
+            await validate_input(
+                self.hass,
+                {CONF_API_URL: api_url, CONF_USER_ID: DEFAULT_USER_ID},
+                check_auth=False,
+            )
         except (CannotConnect, InvalidAuth):
             return self.async_abort(reason="cannot_connect")
 

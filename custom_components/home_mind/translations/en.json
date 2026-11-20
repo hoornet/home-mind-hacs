@@ -10,7 +10,7 @@
           "user_id": "Default User ID (optional)"
         },
         "data_description": {
-          "api_token": "Only needed if your server sets API_TOKEN. Leave empty otherwise.",
+          "api_token": "The token your server requires: API_TOKEN if you set one, otherwise API_TOKEN_AUTO from the .env file (Docker). Leave empty only if the server has neither.",
           "user_id": "Used to namespace memories per user. Leave as 'default' unless you have multiple users."
         }
       },
@@ -21,7 +21,7 @@
     },
     "error": {
       "cannot_connect": "Failed to connect to the Home Mind API. Make sure it's running and accessible.",
-      "invalid_auth": "Invalid API token. Check that it matches API_TOKEN on your server.",
+      "invalid_auth": "The server refused the API token, or needs one. Enter API_TOKEN, or API_TOKEN_AUTO from the server's .env file if you did not set API_TOKEN.",
       "unknown": "Unexpected error occurred."
     },
     "abort": {
