@@ -108,12 +108,22 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         host = discovery_info.config.get("host", "")
         port = discovery_info.config.get("port", 3100)
         api_url = f"http://{host}:{port}"
+        # Since add-on 0.21.0 the announcement carries the API token, so the
+        # entry can send it without the user typing it in.
+        api_token = str(discovery_info.config.get("api_token") or "").strip()
 
-        # Prevent duplicate entries for the same add-on
+        # Prevent duplicate entries for the same add-on, and hand an existing
+        # one the token (Home Assistant reloads it when its data changes).
+        updates: dict[str, Any] = {CONF_API_URL: api_url}
+        if api_token:
+            updates[CONF_API_TOKEN] = api_token
         await self.async_set_unique_id(f"homemind_addon_{host}")
-        self._abort_if_unique_id_configured(updates={CONF_API_URL: api_url})
+        self._abort_if_unique_id_configured(updates=updates)
 
-        # Validate the discovered server is reachable
+        # Check the discovered server is reachable, deliberately WITHOUT the
+        # token: the server starts requiring a generated token from the first
+        # request that carries it, and an entry the user set up by hand without
+        # one must not be locked out just because the add-on was discovered.
         try:
             await validate_input(self.hass, {
                 CONF_API_URL: api_url,
@@ -132,13 +142,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             assert self._hassio_discovery is not None
             host = self._hassio_discovery["host"]
             port = self._hassio_discovery.get("port", 3100)
-            return self.async_create_entry(
-                title="Home Mind (Add-on)",
-                data={
-                    CONF_API_URL: f"http://{host}:{port}",
-                    CONF_USER_ID: DEFAULT_USER_ID,
-                },
-            )
+            data = {
+                CONF_API_URL: f"http://{host}:{port}",
+                CONF_USER_ID: DEFAULT_USER_ID,
+            }
+            api_token = str(self._hassio_discovery.get("api_token") or "").strip()
+            if api_token:
+                data[CONF_API_TOKEN] = api_token
+            return self.async_create_entry(title="Home Mind (Add-on)", data=data)
 
         # Supervisor injects the add-on's name into the payload, so the prompt
         # can name the add-on that was actually found.

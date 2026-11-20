@@ -39,8 +39,10 @@ This is the current, maintained integration for the open-source Home Mind server
 1. Go to **Settings → Devices & Services → Add Integration**
 2. Search for **Home Mind**
 3. Enter the URL of your Home Mind server (e.g. `http://192.168.1.100:3100`)
-4. If you've set `API_TOKEN` on the server, enter that too
+4. Enter the server's API token: `API_TOKEN`, or `API_TOKEN_AUTO` that `scripts/deploy.sh` generated in your `.env`
 5. Complete the setup
+
+With the Home Mind add-on (0.21.0 or later), Home Assistant discovers it and this integration takes its API token from the add-on by itself, also for an entry you already have; no typing needed.
 
 Then set it as your conversation agent: **Settings → Voice assistants → (your assistant) → Conversation agent → Home Mind**.
 
